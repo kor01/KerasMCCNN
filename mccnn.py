@@ -10,7 +10,8 @@ def preprocess_rgb(image):
   return tf.image.per_image_standardization(image)
 
 
-def fast_mccnn_model(path=None, normalize=False):
+def fast_mccnn_model(
+  path=None, normalize=True, channelfirst=True):
 
   dirname = os.path.join(os.path.dirname(__file__), "weights")
   if os.path.exists(dirname):
@@ -30,8 +31,12 @@ def fast_mccnn_model(path=None, normalize=False):
   if normalize:
     model.add(layers.Lambda(lambda x: tf.linalg.l2_normalize(x, axis=3)))
 
+  if channelfirst:
+    model.add(layers.Lambda(lambda x: tf.transpose(x, (0, 3, 1, 2))))
+
   if path is not None:
     model.load_weights(path)
+
   return model
 
 
