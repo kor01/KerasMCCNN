@@ -11,13 +11,14 @@ def preprocess_rgb(image):
 
 
 def fast_mccnn_model(
-  path=None, normalize=True, channelfirst=True):
+  path=None, normalize=True, channelfirst=False):
 
   dirname = os.path.join(os.path.dirname(__file__), "weights")
   if os.path.exists(dirname):
     path = os.path.join(dirname, "mccnn")
 
   model = tf.keras.Sequential()
+
   model.add(layers.Lambda(preprocess_rgb))
 
   model.add(layers.Conv2D(
@@ -46,6 +47,9 @@ def predict(model, image):
     batch, image = False, image[None]
   else:
     batch = True
+  
+  if image.shape[1] == 3 and image.shape[3] != 3:
+    image = image.transpose((0, 2, 3, 1))
 
   features = model.predict(image)
 
